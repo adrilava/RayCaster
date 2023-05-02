@@ -15,12 +15,12 @@ CASTED_RAYS = 480
 STEP_ANGLE = FOV / CASTED_RAYS
 SCALE = (SCREEN_WIDTH) / CASTED_RAYS
 uncalc = 6
-wallHeight = 28000
+wallHeight = 24000
 qualityBrut = 10
 refList = [1, 3, 9]
 debug = False
 showMap = False
-
+screenPatch = -180
 
 
 
@@ -171,7 +171,7 @@ def cast_rays():
                 first = (SCREEN_HEIGHT + ray * SCALE - (SCREEN_WIDTH / 2) - 120)
                 second = ((SCREEN_HEIGHT / 2) - wall_height / 2,SCALE, wall_height)
 
-                rect = pygame.draw.rect(win, (color, color, color), (SCREEN_HEIGHT + ray * SCALE - (SCREEN_WIDTH / 2) - 120, (SCREEN_HEIGHT / 2) - wall_height / 2, SCALE, wall_height), 1)
+                rect = pygame.draw.rect(win, (color, color, color), (SCREEN_HEIGHT + ray * SCALE - (SCREEN_WIDTH / 2) + screenPatch, (SCREEN_HEIGHT / 2) - wall_height / 2, SCALE, wall_height),)
 
                 rectList.append([col, row, (SCREEN_HEIGHT + ray * SCALE - (SCREEN_WIDTH / 2) - 120, (SCREEN_HEIGHT / 2) - wall_height / 2, SCREEN_HEIGHT + ray * SCALE - (SCREEN_WIDTH / 2) - 120+ SCALE, (SCREEN_HEIGHT / 2) - wall_height / 2+ wall_height), rect])
                 # col, row, ( x1, y1, x2, y2 ), rect
@@ -193,65 +193,6 @@ def cast_rays():
                 break
 
         start_angle += STEP_ANGLE
-
-    # Blue smooth top/bottom
-
-
-    # rectList build : ([col, row, rect],[...],...)
-
-    listSize = []
-
-    cubePos = rectList[0][0]*100 + rectList[0][1]
-    currentCubeSize = 0
-    for i in range(len(rectList)):
-        cubePosCheck = i
-        col = rectList[i][0]
-        row = rectList[i][1]
-        cubeIPos = col*100 + row
-        if i < len(rectList)-1 and (cubeIPos == cubePos or cubeIPos == cubePos-100 or cubeIPos == cubePos+100 or cubeIPos == cubePos + 1 or cubeIPos == cubePos -1) :
-            currentCubeSize += 1
-        else :
-            listSize.append(currentCubeSize)
-            currentCubeSize = 0
-            cubePos = cubeIPos
-
-    listStartEndWalls = []
-    count = 0
-    for i in range(len(listSize)):
-        listStartEndWalls.append((count, listSize[i]+count))
-        count+=listSize[i]+1
-
-    #print(listStartEndWalls)
-    for i in range(len(listStartEndWalls)):
-
-        firstRect = rectList[listStartEndWalls[i][0]-1][3]
-        firstRectTop = (rectList[listStartEndWalls[i][0]-1][2][0], rectList[listStartEndWalls[i][0]-1][2][1])
-        firstRectBot = (rectList[listStartEndWalls[i][0]-1][2][2], rectList[listStartEndWalls[i][0]-1][2][3])
-
-        secondRect = rectList[listStartEndWalls[i][1]-1][3]
-        secondRectTop = (rectList[listStartEndWalls[i][1]-1][2][0], rectList[listStartEndWalls[i][1]-1][2][1])
-        secondRectBot = (rectList[listStartEndWalls[i][1]-1][2][2],rectList[listStartEndWalls[i][1]-1][2][3])
-
-        if firstRect.x  < secondRect.x:
-            pygame.draw.polygon(win, (0, 0, 102), (firstRectTop, secondRectTop, secondRectBot, firstRectBot), 10)
-
-
-
-
-
-
-
-
-    if debug:
-        multip = SCREEN_WIDTH/CASTED_RAYS
-
-        countt = 0
-        for i in range(len(listSize)):
-            color = (i/len(listSize))*100
-            pygame.draw.line(win,(color,color,color), (countt, 100+30*i), (listSize[i]*multip+countt, 100+30*i), 30)
-            countt += listSize[i]*multip
-
-
 
 
 
