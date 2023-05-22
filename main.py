@@ -288,13 +288,13 @@ while True:
     else:
         player_angle = targetAngle
 
-    if player_x + divideSpeedMax*200 < xTarget:
+    if player_x + divideSpeedMax*50 < xTarget:
         player_x = xTarget
-    elif player_x - divideSpeedMax*200 > xTarget:
+    elif player_x - divideSpeedMax*50 > xTarget:
         player_x = xTarget
-    if player_y + divideSpeedMax*200 < yTarget:
+    if player_y + divideSpeedMax*50 < yTarget:
         player_y = yTarget
-    elif player_y - divideSpeedMax*200 > yTarget:
+    elif player_y - divideSpeedMax*50 > yTarget:
         player_y = yTarget
 
 
