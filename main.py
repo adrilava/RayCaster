@@ -17,13 +17,13 @@ SCALE = (SCREEN_WIDTH) / CASTED_RAYS
 uncalc = 6
 wallHeight = 28000
 qualityBrut = 10
-refList = [1, 3, 9]
+refList = [1, 3]
 debug = False
 showMap = True
-screenPatch = -180  # 120 - 180
+screenPatch = -120  # 120 - 180
 maxSpeed = 100
 
-multiplyScreen = 17  # 17 - 25
+multiplyScreen = 25  # 17 - 25
 
 player_x = (SCREEN_WIDTH / 2) / 2.5
 player_y = (SCREEN_WIDTH / 2) / 2.2
@@ -47,9 +47,9 @@ MAP = (
     '####### ##### ## ##### #######'
     '####### ##          ## #######'
     '####### ## ###  ### ## #######'
-    ' ###### ## #      # ## ###### '
-    '           #      #           '
-    ' ###### ## #      # ## ###### '
+    '####### ## #      # ## #######'
+    '#[         #      #         ]#'
+    '####### ## #      # ## #######'
     '####### ## ######## ## #######'
     '####### ##     +    ## #######'
     '####### ## ######## ## #######'
@@ -84,6 +84,17 @@ def move(dir, MAP):
         MAP = MAP[:index] + " " + MAP[index + 1:]
 
         MAP = MAP[:newPos] + "+" + MAP[newPos + 1:]
+    if MAP[newPos] == "[":
+        newPos += 26
+        MAP = MAP[:index] + " " + MAP[index + 1:]
+
+        MAP = MAP[:newPos] + "+" + MAP[newPos + 1:]
+    if MAP[newPos] == "]":
+        newPos -= 26
+        MAP = MAP[:index] + " " + MAP[index + 1:]
+
+        MAP = MAP[:newPos] + "+" + MAP[newPos + 1:]
+
 
     return MAP
 
@@ -101,6 +112,10 @@ def draw_map():
                     color = (50, 50, 50)
                 elif MAP[square] == "#":
                     color = (0, 0, 102)
+                elif MAP[square] == "[":
+                    color = (250, 5, 5)
+                elif MAP[square] == "]":
+                    color = (5, 5, 250)
                 else:
                     color = (0, 0, 0)
 
@@ -132,7 +147,7 @@ def cast_rays():
 
             cube = row * MAP_SIZE + col
 
-            if MAP[cube] == '#':
+            if MAP[cube] == '#' or MAP[cube] == '[' or MAP[cube] == ']':
 
                 depth = (dephh - 1) * uncalc
 
@@ -151,7 +166,7 @@ def cast_rays():
 
                         cube = row * MAP_SIZE + col
                         (target_y / TILE_SIZE) * MAP_SIZE + target_x / TILE_SIZE
-                        if MAP[cube] == '#':
+                        if MAP[cube] == '#' or MAP[cube] == '[' or MAP[cube] == ']':
                             depth -= 1 / precision
                             break
 
@@ -163,7 +178,10 @@ def cast_rays():
                 squareCheckCorner = rowCheckCorner * MAP_SIZE + colCheckCorner
                 if MAP[squareCheckCorner] != '#': continue
 
-                color = 50 / (1 + depth * depth * 0.0001)
+                base = 50 / (1 + depth * depth * 0.0001)
+                colorWall = (base, base, base)
+                colorPortal1 = (base*5, base/5, base/5)
+                colorPortal2 = (base/5, base/5, base*5)
 
                 # Fix fish eye effect
                 depth *= math.cos(player_angle - start_angle)
@@ -172,7 +190,12 @@ def cast_rays():
 
                 # 3D RENDERING
 
-                pygame.draw.rect(win, (color, color, color), (
+                if MAP[cube] == '#' : color = colorWall
+                elif MAP[cube] == '[' : color = colorPortal1
+                else: color = colorPortal2
+
+
+                pygame.draw.rect(win, color, (
                 SCREEN_HEIGHT + ray * SCALE - (SCREEN_WIDTH / 2) + screenPatch, (SCREEN_HEIGHT / 2) - wall_height / 2,
                 SCALE, wall_height), )
 
@@ -264,6 +287,16 @@ while True:
         player_angle -= 0.1
     else:
         player_angle = targetAngle
+
+    if player_x + divideSpeedMax*200 < xTarget:
+        player_x = xTarget
+    elif player_x - divideSpeedMax*200 > xTarget:
+        player_x = xTarget
+    if player_y + divideSpeedMax*200 < yTarget:
+        player_y = yTarget
+    elif player_y - divideSpeedMax*200 > yTarget:
+        player_y = yTarget
+
 
     if not keys[pygame.K_DOWN] and not keys[pygame.K_LEFT] and not keys[pygame.K_UP] and not keys[
         pygame.K_RIGHT]: forward = False
